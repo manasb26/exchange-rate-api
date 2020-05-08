@@ -40,14 +40,8 @@ public class ExchangeRateService {
 
 	private String getExhangeRateTrend(ExchangeRateDetails exchangeRate, String baseCurrency, String targetCurrency) {
 
-		boolean ascendingFlag = true;
-		boolean descendingFlag = true;
-		boolean constantFlag = true;
-		double lastRate = 0;
-
-		double baseCurrencyRate = 0.0;
-		double targetCurrencyRate = 0.0;
-		double currentRate = 0.0;
+		boolean ascendingFlag = false, descendingFlag = false, constantFlag = false;
+		double lastRate = 0, baseCurrencyRate = 0.0, targetCurrencyRate = 0.0, currentRate = 0.0;
 		int dayNum = 0;
 
 		String trend = UNDEFINED_TREND;
@@ -62,8 +56,8 @@ public class ExchangeRateService {
 			Map<String, Double> currencyRateMap = ratesMap.get(key);
 			if (currencyRateMap != null && (!(startDate.getDayOfWeek() == DayOfWeek.SATURDAY
 					|| startDate.getDayOfWeek() == DayOfWeek.SUNDAY))) {
-				baseCurrencyRate = baseCurrencyRate + currencyRateMap.get(baseCurrency).doubleValue();
-				targetCurrencyRate = targetCurrencyRate + currencyRateMap.get(targetCurrency).doubleValue();
+				baseCurrencyRate = currencyRateMap.get(baseCurrency).doubleValue();
+				targetCurrencyRate = currencyRateMap.get(targetCurrency).doubleValue();
 				currentRate = targetCurrencyRate / baseCurrencyRate;
 				dayNum++;
 
@@ -73,53 +67,33 @@ public class ExchangeRateService {
 					continue;
 				}
 
-				if (lastRate == currentRate && constantFlag == true) {
+				if (lastRate == currentRate) {
 					constantFlag = true;
-					ascendingFlag = false;
-					descendingFlag = false;
-				} else {
-					constantFlag = false;
 				}
 
-				if (lastRate > currentRate && descendingFlag == true) {
+				if (lastRate > currentRate) {
 					descendingFlag = true;
-					ascendingFlag = false;
-					constantFlag = false;
-				} else {
-					descendingFlag = false;
 				}
 
-				if (lastRate < currentRate && ascendingFlag == true) {
+				if (lastRate < currentRate) {
 					ascendingFlag = true;
-					descendingFlag = false;
-					constantFlag = false;
-				} else {
-					ascendingFlag = false;
 				}
 
 				lastRate = currentRate;
-
-				if (constantFlag || ascendingFlag || descendingFlag) {
-					startDate = startDate.plusDays(1);
-					continue;
-				} else {
-					break;
-				}
 
 			}
 			startDate = startDate.plusDays(1);
 		}
 
-		if (constantFlag)
+		if(constantFlag && !descendingFlag && !ascendingFlag)
 			trend = CONSTANT_TREND;
 		else {
-			if (ascendingFlag) {
+			if(ascendingFlag && !descendingFlag)
 				trend = ASCENDING_TREND;
-			} else {
+			
+			if(ascendingFlag && !descendingFlag)
 				trend = DESCENDING_TREND;
-			}
 		}
-
 		return trend;
 	}
 
