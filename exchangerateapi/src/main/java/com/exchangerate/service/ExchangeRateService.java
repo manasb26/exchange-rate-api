@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.exchangerate.exceptions.InvalidCurrencyException;
+import com.exchangerate.exceptions.InvalidDateException;
 import com.exchangerate.models.ExchangeRateDetails;
 import com.exchangerate.models.ExchangeRateResponse;
 
@@ -25,6 +26,12 @@ public class ExchangeRateService {
 	public ExchangeRateResponse getExchangeRateDetails(ExchangeRateDetails exchangeRate, String date,
 			String baseCurrency, String targetCurrency) {
 
+		LocalDate requestedDate = LocalDate.parse(date);
+
+		if(requestedDate.isBefore(LocalDate.of(2000, 01, 01)) || requestedDate.isAfter(LocalDate.now().minusDays(1))){
+			throw new InvalidDateException("The entered date is invalid!! Provide a date between 2000-01-01 and " + LocalDate.now() + " in YYYY-MM-DD format");
+		}
+		
 		double rate = getExchangeRate(exchangeRate, baseCurrency, targetCurrency);
 
 		double averageRate = getAverageRate(exchangeRate, baseCurrency, targetCurrency);
