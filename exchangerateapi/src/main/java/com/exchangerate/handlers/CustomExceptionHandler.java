@@ -54,11 +54,11 @@ public class CustomExceptionHandler {
 
 	@ExceptionHandler
 	public ResponseEntity<ErrorResponse> handleException(Exception exception) {
-		errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-		errorResponse.setTitle("Invalid request.");
+		errorResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+		errorResponse.setTitle("Internal Server Error.");
 		errorResponse.setDescription(exception.getMessage());
 		errorResponse.setTimeStamp(getCurrentDateTime());
-		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	private String getCurrentDateTime() {
