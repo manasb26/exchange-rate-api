@@ -16,12 +16,12 @@ import com.exchangerate.exceptions.InvalidDateException;
 import com.exchangerate.models.ErrorResponse;
 
 @ControllerAdvice
-public class CustomExceptionHandler {
+public class ExchangeRateExceptionHandler {
 
 	@Autowired
 	private ErrorResponse errorResponse;
 
-	public CustomExceptionHandler() {
+	public ExchangeRateExceptionHandler() {
 		// TODO Auto-generated constructor stub
 	}
 

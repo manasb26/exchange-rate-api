@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.exchangerate.exceptions.InvalidCurrencyException;
 import com.exchangerate.exceptions.InvalidDateException;
+import com.exchangerate.exceptions.NotFoundException;
 import com.exchangerate.models.ExchangeRateDetails;
 import com.exchangerate.models.ExchangeRateResponse;
 
@@ -25,22 +26,19 @@ public class ExchangeRateService {
 
 	public ExchangeRateResponse getExchangeRateDetails(ExchangeRateDetails exchangeRate, String date,
 			String baseCurrency, String targetCurrency) {
-
 		LocalDate requestedDate = LocalDate.parse(date);
-
-		if(requestedDate.isBefore(LocalDate.of(2000, 01, 01)) || requestedDate.isAfter(LocalDate.now().minusDays(1))){
-			throw new InvalidDateException("The entered date is invalid!! Provide a date between 2000-01-01 and " + LocalDate.now() + " in YYYY-MM-DD format");
+		if (requestedDate.isBefore(LocalDate.of(2000, 01, 01)) || requestedDate.isAfter(LocalDate.now().minusDays(1))) {
+			throw new InvalidDateException("The entered date is invalid!! Provide a date between 2000-01-01 and "
+					+ LocalDate.now() + " in YYYY-MM-DD format");
 		}
-		
-		double rate = getExchangeRate(exchangeRate, baseCurrency, targetCurrency);
 
+		double rate = getExchangeRate(exchangeRate, baseCurrency, targetCurrency);
 		double averageRate = getAverageRate(exchangeRate, baseCurrency, targetCurrency);
 		String trend = getExhangeRateTrend(exchangeRate, baseCurrency, targetCurrency);
-
-		exchangeRateDetails.setCurrentRate(rate);
+		
+		exchangeRateDetails.setRate(rate);
 		exchangeRateDetails.setAverageRate(averageRate);
 		exchangeRateDetails.setTrend(trend);
-
 		return exchangeRateDetails;
 
 	}
@@ -92,25 +90,22 @@ public class ExchangeRateService {
 			startDate = startDate.plusDays(1);
 		}
 
-		if(constantFlag && !descendingFlag && !ascendingFlag)
+		if (constantFlag && !descendingFlag && !ascendingFlag)
 			trend = CONSTANT_TREND;
 		else {
-			if(ascendingFlag && !descendingFlag)
+			if (ascendingFlag && !descendingFlag)
 				trend = ASCENDING_TREND;
-			
-			if(ascendingFlag && !descendingFlag)
+
+			if (ascendingFlag && !descendingFlag)
 				trend = DESCENDING_TREND;
 		}
 		return trend;
 	}
 
 	private double getAverageRate(ExchangeRateDetails exchangeRate, String baseCurrency, String targetCurrency) {
-
 		Map<String, Map<String, Double>> ratesMap = exchangeRate.getRates();
 		LocalDate startDate = getStartDate(exchangeRate.getEnd_at());
-
 		LocalDate endDate = LocalDate.parse(exchangeRate.getEnd_at());
-
 		double baseCurrencyRate = 0;
 		double targetCurrencyRate = 0;
 		double baseToTargetRate = 0;
@@ -126,9 +121,7 @@ public class ExchangeRateService {
 			}
 			startDate = startDate.plusDays(1);
 		}
-
 		double averageCurrencyRate = baseToTargetRate / (ratesMap.size() - 1);
-
 		return averageCurrencyRate;
 	}
 
@@ -136,12 +129,18 @@ public class ExchangeRateService {
 		Map<String, Map<String, Double>> ratesMap = exchangeRate.getRates();
 		Map<String, Double> currencyRateMap = ratesMap.get(exchangeRate.getEnd_at());
 
-		if (currencyRateMap.containsKey(baseCurrency) && currencyRateMap.containsKey(targetCurrency)) {
-			double baseCurrencyRate = currencyRateMap.get(baseCurrency);
-			double targetCurrencyRate = currencyRateMap.get(targetCurrency);
-			return targetCurrencyRate / baseCurrencyRate;
+		if (currencyRateMap != null && (!(LocalDate.parse(exchangeRate.getEnd_at()).getDayOfWeek() == DayOfWeek.SATURDAY
+				|| LocalDate.parse(exchangeRate.getEnd_at()).getDayOfWeek() == DayOfWeek.SUNDAY))) {
+			if (currencyRateMap.containsKey(baseCurrency) && currencyRateMap.containsKey(targetCurrency)) {
+				double baseCurrencyRate = currencyRateMap.get(baseCurrency);
+				double targetCurrencyRate = currencyRateMap.get(targetCurrency);
+				return targetCurrencyRate / baseCurrencyRate;
+			} else {
+				throw new InvalidCurrencyException("The base or the target currency is not a valid currency!");
+			}
 		} else {
-			throw new InvalidCurrencyException("The base or the target currency is not a valid currency!");
+			throw new NotFoundException(
+					"The value for exchange rate is not found for the date: " + exchangeRate.getEnd_at());
 		}
 	}
 

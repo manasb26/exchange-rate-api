@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExchangeRateResponse {
 
-	private double currentRate;
+	private double rate;
 	private double averageRate;
 	private String trend;
 
@@ -13,12 +13,12 @@ public class ExchangeRateResponse {
 		// TODO Auto-generated constructor stub
 	}
 
-	public double getCurrentRate() {
-		return currentRate;
+	public double getRate() {
+		return rate;
 	}
 
-	public void setCurrentRate(double currentRate) {
-		this.currentRate = currentRate;
+	public void setRate(double rate) {
+		this.rate = rate;
 	}
 
 	public double getAverageRate() {
