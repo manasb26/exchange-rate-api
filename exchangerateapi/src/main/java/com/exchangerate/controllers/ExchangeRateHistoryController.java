@@ -25,7 +25,7 @@ public class ExchangeRateHistoryController {
 	}
 	
 	@GetMapping
-	@RequestMapping("/daily/{year}/{month}")
+	@RequestMapping("/monthly/{year}/{month}")
 	public Collection<ExchangeRateHistory> getDailyExchangeRateHistory(@PathVariable int year, @PathVariable int month){
 		return exchangeRateHistoryService.getMonthlyExchangeRateHistory(year, month);
 	}

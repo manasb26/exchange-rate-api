@@ -50,12 +50,12 @@ public class ExchangeRateHistoryService {
 	}
 
 	public Collection<ExchangeRateHistory> getDailyExchangeRateHistory(int year, int month, int day) {
-		Collection<ExchangeRateHistory> result =  exchangeRateHistoryRepository.getDailyExchangeRateHistory(year, month, day);
+		Collection<ExchangeRateHistory> result =  exchangeRateHistoryRepository.findDailyExchangeRateHistory(year, month, day);
 		return result;	
 	}
 	
 	public Collection<ExchangeRateHistory> getMonthlyExchangeRateHistory(int year, int month) {
-		Collection<ExchangeRateHistory> result =  exchangeRateHistoryRepository.getMonthlyExchangeRateHistory(year, month);
+		Collection<ExchangeRateHistory> result =  exchangeRateHistoryRepository.findMonthlyExchangeRateHistory(year, month);
 		return result;	
 	}
 

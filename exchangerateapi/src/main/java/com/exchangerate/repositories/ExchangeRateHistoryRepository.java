@@ -4,20 +4,20 @@ import java.util.Collection;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.exchangerate.models.ExchangeRateHistory;
 
-
 @Repository
 public interface ExchangeRateHistoryRepository extends JpaRepository<ExchangeRateHistory, Long> {
 
+	@Query(value = "SELECT erh FROM ExchangeRateHistory erh WHERE erh.queryYear = :year AND erh.queryMonth = :month AND erh.queryDay = :day")
+	public Collection<ExchangeRateHistory> findDailyExchangeRateHistory(@Param("year") int year,
+			@Param("month") int month, @Param("day") int day);
 
-	@Query(value = "SELECT * FROM exchange_rate_history erh where erh.query_year = ?1 AND erh.query_month = ?2 AND erh.query_day = ?3 ", nativeQuery = true)
-	public Collection<ExchangeRateHistory> getDailyExchangeRateHistory(int year, int month, int day);
-	
-	
-	@Query(value = "SELECT * FROM exchange_rate_history erh where erh.query_year = ?1 AND erh.query_month = ?2", nativeQuery = true)
-	public Collection<ExchangeRateHistory> getMonthlyExchangeRateHistory(int year, int month);
+	@Query(value = "SELECT erh FROM ExchangeRateHistory erh WHERE erh.queryYear = :year AND erh.queryMonth = :month")
+	public Collection<ExchangeRateHistory> findMonthlyExchangeRateHistory(@Param("year") int year,
+			@Param("month") int month);
 
 }
